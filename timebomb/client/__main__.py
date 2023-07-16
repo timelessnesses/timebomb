@@ -1,7 +1,13 @@
 import cli
 import curses
+import time
+import os
+import requests
 
 class MainMenu(cli.Window):
+
+    dictionary = os.path.dirname(os.path.abspath(__file__)) + "/dict.txt"
+
     def run(self) -> None:
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
         last_x, last_y = self.width, self.height
@@ -27,8 +33,43 @@ class MainMenu(cli.Window):
                 continue
 
     def single_player_initialize(self) -> None:
-        self.screen.clear()
-        self.add_text(self.centerize("Single player mode", {}))
+        y = 50
+        while y != 0:
+            self.screen.clear()
+            self.add_text(*self.centerize("Single player mode", {"x": 50, "y": y}))
+            y -= 10
+            time.sleep(1)
+            self.refresh()
+
+        self.add_text(*self.centerize("Press J to join!", {"x": 50, "y": 50}))
+        self.add_text(*self.centerize("Press Q to return to main menu!", {"x": 50, "y": 90}))
+
+        while True:
+            key = self.screen.getch()
+            if key in [ord("J"), ord("j")]:
+                self.screen.clear()
+                self.refresh()
+                self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
+                self.add_text(*self.centerize("Loading Dictionary... (May use internet if you haven't downloaded this.)", {"x": 50, "y": 50}))
+                if not os.path.exists(self.dictionary):
+                    self.screen.clear()
+                    self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
+                    self.add_text(*self.centerize("Loading Dictionary... (Downloading...)", {"x": 50, "y": 50}))
+                    self.screen.refresh()
+                    with open(self.dictionary, "w") as fp:
+                        fp.write(requests.get("https://timebomb.api.timelessnesses.me/static/").content)
+                self.screen.clear()
+                self.refresh()
+                self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
+                self.add_text(*self.centerize("Loading Dictionary... (Loading...)", {"x": 50, "y": 50}))
+                with open(self.dictionary, "r") as fp:
+                    self.dictionary_words = fp.read().splitlines()
+                
+            elif key in [ord("Q"), ord("q")]:
+                self.screen.clear()
+                self.refresh()
+                return self.run()
+            
 
 if __name__ == "__main__":
     cli.run(MainMenu)
