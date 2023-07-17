@@ -39,9 +39,12 @@ class Window:
         return x, y
 
     def add_text(self, pos: Coordinate, string: str, color_pair: Optional[int] = 0) -> None:
-        assert self.is_renderable(string), "Unrenderable"
+        assert self.is_renderable(string), f"Unrenderable {string}"
         x = self.get_coordinates(pos["x"], pos["y"])
-        self.screen.addstr(x[1], x[0], string, color_pair)
+        try:
+            self.screen.addstr(x[1], x[0], string, color_pair)
+        except curses.error as e:
+            raise Exception(f"Unable to render {string}") from e
         self.refresh()
 
     def refresh(self):
