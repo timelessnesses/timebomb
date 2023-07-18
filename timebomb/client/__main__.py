@@ -190,7 +190,7 @@ class MainMenu(cli.Window):
             if key in [ord("Q"), ord("q")]:
                 self.screen.clear()
                 self.run()
-                break
+                break 
         self.screen.refresh()
 
     def is_alphabet(self, char: str) -> bool:
