@@ -131,6 +131,7 @@ class MainMenu(cli.Window):
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
+                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     if health == 0:
                         break
@@ -152,6 +153,7 @@ class MainMenu(cli.Window):
                         self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                         self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                         self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
+                        self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
                         self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                         continue
                 if key == curses.KEY_BACKSPACE or key == 8:
@@ -160,6 +162,7 @@ class MainMenu(cli.Window):
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
+                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     self.refresh()
                     continue
@@ -170,7 +173,7 @@ class MainMenu(cli.Window):
                     self.screen.clear()
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
-                    self.add_text(*self.centerize("Time left:"))
+                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     self.refresh()
