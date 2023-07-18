@@ -102,6 +102,7 @@ class MainMenu(cli.Window):
     def singleplayer_play(self):
         health = 2
         streak = 0
+        used = []
         while health != 0:
             self.screen.clear()
             self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
@@ -118,7 +119,6 @@ class MainMenu(cli.Window):
             self.refresh()
             now = datetime.datetime.now()
             answer = ""
-            used = []
             while True:
                 timeout = self.determine_time(streak)
                 if (datetime.datetime.now() - now).total_seconds() >= timeout:
@@ -131,11 +131,9 @@ class MainMenu(cli.Window):
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
-                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
+                    self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
-                    if health == 0:
-                        break
-                    continue
+                    break
                 key = self.screen.getch()
                 if key == curses.KEY_ENTER or key == 10:
                     # validate answer
@@ -153,7 +151,7 @@ class MainMenu(cli.Window):
                         self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                         self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                         self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
-                        self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
+                        self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
                         self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                         continue
                 if key == curses.KEY_BACKSPACE or key == 8:
@@ -162,7 +160,7 @@ class MainMenu(cli.Window):
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
-                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
+                    self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     self.refresh()
                     continue
@@ -173,12 +171,14 @@ class MainMenu(cli.Window):
                     self.screen.clear()
                     self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
                     self.add_text(*self.centerize("Type the word containing these alphabets!", {"x": 50, "y": 30}))
-                    self.add_text(*self.centerize(f"You have {(datetime.datetime.now() - now).total_seconds() - timeout} seconds", {"x": 50, "y": 40}))
+                    self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(self.prompt, {"x": 50, "y": 80}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     self.refresh()
                 except ValueError:
                     pass
+                self.refresh()
+                self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
         self.screen.clear()
         self.add_text(*self.centerize("Single player mode", {"x": 50, "y": 0}))
         self.add_text(*self.centerize("The game has ended.", {"x": 50, "y": 50}))
@@ -197,7 +197,7 @@ class MainMenu(cli.Window):
         self.screen.refresh()
 
     def is_alphabet(self, char: str) -> bool:
-        return True if char in string.ascii_letters else False
+        return True if char in string.ascii_letters or char in  ["-"] else False # fuck you english
     
     def determine_time(self, streaks: int) -> int:
         """
