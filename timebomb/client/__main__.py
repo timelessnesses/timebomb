@@ -6,6 +6,8 @@ import requests
 import random
 import datetime
 import string
+import websockets
+
 class MainMenu(cli.Window):
 
     dictionary = os.path.dirname(os.path.abspath(__file__)) + "/dict.txt"
@@ -211,6 +213,9 @@ class MainMenu(cli.Window):
             return round(random.uniform(2.6, 3.6), 2)
         elif streaks >= random.randint(18, 30):
             return round(random.uniform(1.5, 2.4), 2)
+
+    def multi_player_initialize(self) -> None:
+        pass
 
 if __name__ == "__main__":
     cli.run(MainMenu)
