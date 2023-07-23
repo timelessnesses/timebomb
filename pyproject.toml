@@ -8,11 +8,15 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-aiohttp = "^3.8.4"
-art = "^6.0"
+
+[tool.poetry.group.client.dependencies]
 websockets = "^11.0.3"
 requests = "^2.31.0"
 
+[tool.poetry.group.server.dependencies]
+fastapi = "^0.100.0"
+uvicorn = "^0.23.1"
+async-timeout = "^4.0.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"

@@ -1,4 +1,7 @@
-import cli
+try:
+    import cli
+except ImportError:
+    from . import cli
 import curses
 import time
 import os
@@ -26,7 +29,10 @@ class MainMenu(cli.Window):
             self.add_text(*self.centerize("Made by timelessnesses (https://timelessnesses.me)", {"x": 50, "y":40}))
             self.add_text(*self.centerize("Options", {"x": 50,"y": 60}))
             self.add_text(*self.centerize("(S)ingleplayer                             (M)ultiplayer                             (Q)uit", {"x": 50,"y": 80}))
-            key = self.screen.getch()
+            try:
+                key = self.screen.getch()
+            except KeyboardInterrupt:
+                return
             if key in [ord("S"), ord("s")]:
                 self.single_player_initialize()
             elif key in [ord("M"), ord("m")]:
@@ -136,7 +142,11 @@ class MainMenu(cli.Window):
                     self.add_text(*self.centerize(f"You have {int(timeout - (datetime.datetime.now() - now).total_seconds())} seconds", {"x": 50, "y": 40}))
                     self.add_text(*self.centerize(f"Answer: {answer}", {"x": 50, "y": 90}))
                     break
-                key = self.screen.getch()
+                try:
+                    key = self.screen.getch()
+                except KeyboardInterrupt:
+                    health = 0
+                    break
                 if key == curses.KEY_ENTER or key == 10:
                     # validate answer
                     if self.prompt in answer and answer not in used and answer in self.dictionary_words:
@@ -187,7 +197,12 @@ class MainMenu(cli.Window):
         self.add_text(*self.centerize("Press J to join again.", {"x": 50, "y": 70}))
         self.add_text(*self.centerize("Press Q to Get out of here.", {"x": 50, "y": 80}))
         while True:
-            key = self.screen.getch()
+            try:
+                key = self.screen.getch()
+            except KeyboardInterrupt:
+                self.screen.clear()
+                self.run()
+                break
             if key in [ord("J"), ord("j")]:
                 self.screen.clear()
                 self.singleplayer_play()
@@ -195,7 +210,7 @@ class MainMenu(cli.Window):
             if key in [ord("Q"), ord("q")]:
                 self.screen.clear()
                 self.run()
-                break 
+                break
         self.screen.refresh()
 
     def is_alphabet(self, char: str) -> bool:
