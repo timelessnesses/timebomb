@@ -25,6 +25,7 @@ class Player:
             infos = await self.ws.receive_json()
             self.name = infos["name"]
         except (KeyError, fastapi.WebSocketDisconnect):
+            await self.ws.close()
             raise Left()
         
     async def send(self, content: str):
@@ -84,6 +85,7 @@ class Room:
                     async with async_timeout.timeout(5):
                         assert (json.loads(await player.recieve()))["state"] == "pong", "Not ponged"
                 except AssertionError:
+                    await player.disconnect()
                     raise fastapi.WebSocketDisconnect()
             except fastapi.WebSocketDisconnect:
                 await player.disconnect()
