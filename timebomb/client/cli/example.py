@@ -1,6 +1,7 @@
-from base import Window
-import time
 import curses
+import time
+
+from base import Window
 
 
 class Gay(Window):

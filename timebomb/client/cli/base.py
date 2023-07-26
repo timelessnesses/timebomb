@@ -1,9 +1,11 @@
 import curses
-import art
-from .errors import ExceededPlacementPercentError
-from .typesx import Coordinate
 import string
 from typing import Optional
+
+import art
+
+from .errors import ExceededPlacementPercentError
+from .typesx import Coordinate
 
 
 class Window:
@@ -38,7 +40,9 @@ class Window:
         y = int(self.height * percent_y / 100)
         return x, y
 
-    def add_text(self, pos: Coordinate, string: str, color_pair: Optional[int] = 0) -> None:
+    def add_text(
+        self, pos: Coordinate, string: str, color_pair: Optional[int] = 0
+    ) -> None:
         assert self.is_renderable(string), f"Unrenderable {string}"
         x = self.get_coordinates(pos["x"], pos["y"])
         try:

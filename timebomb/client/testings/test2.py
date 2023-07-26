@@ -1,6 +1,7 @@
 import curses
-import time
 import random
+import time
+
 import art
 
 
