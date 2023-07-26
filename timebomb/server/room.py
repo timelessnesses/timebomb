@@ -1,8 +1,10 @@
 import fastapi
+import fastapi.websockets
 import json
 import async_timeout
 import asyncio
 import enum
+import threading
 
 class RoomState(enum.Enum):
     Idle = 0
@@ -12,31 +14,62 @@ class Left(Exception):
     pass
 
 class Player:
-    def __init__(self):
+    def __init__(self, ws: fastapi.websockets.WebSocket):
         self.name = ""
         self.hearts = 0
+        self.ws = ws
 
     async def get_info(self, ws: fastapi.WebSocket) -> None:
-        await ws.send_json({"state": "requested_informations"})
+        await self.ws.send_json({"state": "requested_informations"})
         try:
-            infos = await ws.receive_json()
+            infos = await self.ws.receive_json()
             self.name = infos["name"]
         except (KeyError, fastapi.WebSocketDisconnect):
             raise Left()
+        
+    async def send(self, content: str):
+        await self.ws.send(content)
+
+class Game:
+    def __init__(self, room: "Room") -> None:
+        self.room = room
+
+class Chat:
+    def __init__(self, room: "Room") -> None:
+        self.room = room
 
 class Room:
 
     def __init__(self) -> None:
-        self.chats: list[dict[str,str]] = []
         self.players: list[Player] = []
-        self.limit = 10 # limti players
+        self.limit = 10 # limit players
         self.state = RoomState.Idle
-        loop = asyncio.get_event_loop()
-        self.task = loop.create_task(self.pinger())
+        self.game = Game(self)
+        self.chat = Chat(self)
 
     async def broadcast_all(self, data: str):
         for player in self.players:
             await player.send(data)
+
+    async def listen(self, player: Player):
+        failed = 0
+        while True:
+            try:
+                a = await player.ws.receive_json()
+            except:
+                await self.check_disconnected()
+                failed += 1
+            if failed >= 3:
+                break
+            if a["state"] == "request_players":
+                await player.ws.send_json([{
+                    "name": x.name,
+                    "hearts": x.hearts
+                } for x in self.players])
+            elif a["state"] == "send_message":
+                await self.chat.send_all(a["content"])
+            elif a["state"] == "request_messages":
+                await player.ws.send_json(await self.chat.get_chat())
 
     async def pinger(self) -> None:
         while True:
@@ -56,3 +89,14 @@ class Room:
                 await player.disconnect()
                 self.players.remove(player)
     
+    async def join(self, ws: fastapi.websockets.WebSocket) -> None:
+        if len(self.players) >= 10:
+            await ws.send_json({
+                "state": "error",
+                "reason": "full"
+            })
+        self.players.append(await Player().get_info(ws))
+        await ws.send_json({
+            "state": "success"
+        })
+        
