@@ -1,7 +1,6 @@
 import asyncio
 import enum
 import json
-import threading
 
 import async_timeout
 import fastapi
@@ -53,6 +52,8 @@ class Room:
         self.state = RoomState.Idle
         self.game = Game(self)
         self.chat = Chat(self)
+        self.threadings: dict[Player, asyncio.Task] = []
+        self.pinger_enabled = False
 
     async def broadcast_all(self, data: str):
         for player in self.players:
@@ -66,7 +67,7 @@ class Room:
             except:
                 await self.check_disconnected()
                 failed += 1
-            if failed >= 3:
+            if failed >= 5:
                 break
             if a["state"] == "request_players":
                 await player.ws.send_json(
@@ -76,6 +77,7 @@ class Room:
                 await self.chat.send_all(a["content"])
             elif a["state"] == "request_messages":
                 await player.ws.send_json(await self.chat.get_chat())
+        await player.ws.close(reason="too many fails")
 
     async def pinger(self) -> None:
         while True:
@@ -99,7 +101,19 @@ class Room:
                 self.players.remove(player)
 
     async def join(self, ws: fastapi.websockets.WebSocket) -> None:
+        if not self.pinger_enabled:
+            a = asyncio.create_task(self.pinger())
+
         if len(self.players) >= 10:
             await ws.send_json({"state": "error", "reason": "full"})
-        self.players.append(await Player().get_info(ws))
+        p = Player()
+        await p.get_info(ws)
+        self.players.append(p)
+        self.threadings[p] = asyncio.create_task(self.listen(p))
         await ws.send_json({"state": "success"})
+    
+    async def cleanup(self):
+        for task in self.threadings.values():
+            task.cancel()
+        for player in self.players:
+            await player.ws.close(reason="shutdown")

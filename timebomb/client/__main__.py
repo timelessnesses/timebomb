@@ -375,7 +375,8 @@ class MainMenu(cli.Window):
             return round(random.uniform(1.5, 2.4), 2)
 
     def multi_player_initialize(self) -> None:
-        pass
+        self.screen.clear()
+        
 
 
 if __name__ == "__main__":
