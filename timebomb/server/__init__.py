@@ -35,7 +35,7 @@ async def websocket(ws: fastapi.WebSocket):
                     await ws.send_json({"state": "error", "reason": "notfound"})
                     await ws.close()
             elif msg["state"] == "create":
-                rooms[msg["id"]] = Room()
+                rooms[msg["id"]] = Room(msg["id"])
                 await rooms[msg["id"]].join(ws)
                 await rooms[msg["id"]].task  # pinger
     except fastapi.WebSocketDisconnect:
